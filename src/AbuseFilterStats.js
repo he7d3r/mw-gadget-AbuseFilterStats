@@ -14,54 +14,59 @@ var api = new mw.Api(),
 	],
 	verificationPages = [];
 
-function printTable(){
-	var i,
-		$tr = $( '<tr>' ),
-		$tbody = $( '<tbody>' )
-			.append( $tr ),
-		$table = $( '<table>' )
-			.addClass( 'wikitable sortable' )
-			.append( $tbody ),
-		$target = $( '#mw-content-text' )
-			.empty();
-	for ( i = 0; i < stats[0].length; i++ ){
-		$tr.append(
-			$( '<th>' )
-				.text( stats[0][i] )
-				.attr( 'data-sort-type', 'number' )
-		);
+function printTable( table ){
+	var i, checked, errors, hits,
+		wikicode = [
+			'{| class="wikitable sortable plainlinks"',
+			'|+ Controle de qualidade dos filtros de edição',
+			'|-',
+			'! data-sort-type="number" | Filtro',
+			'! data-sort-type="number" | Detecções',
+			'! data-sort-type="number" | Conferidas',
+			'! data-sort-type="number" | %',
+			'! data-sort-type="number" | Falsos<br />positivos',
+			'! data-sort-type="number" | % das<br />conferidas'
+		].join( '\n' );
+	for ( i = 1; i < table.length; i++ ){
+		hits = table[i].hits;
+		checked = table[i].checked;
+		errors = table[i].errors;
+		wikicode += '\n|-\n| ' + [
+			'[[Especial:Filtro de abusos/' + i + '|' + i + ']]',
+			'[{{fullurl:Especial:Registro de abusos|wpSearchFilter=' + i + '}} ' + hits + ']',
+			'[[WP:Filtro de edições/Falsos positivos/Filtro ' + i + '|' + checked + ']]',
+			hits === 0
+				? '-'
+				: ( 100 * checked / hits ).toFixed( 1 ) + '%',
+			errors === undefined
+				? '-'
+				: errors,
+			errors === undefined || checked === 0
+				? '-'
+				: ( 100 * errors / checked ).toFixed( 1 ) + '%'
+		].join( ' || ' );
 	}
-	for ( i = 1; i < stats.length; i++ ){
-		$tbody.append(
-			$( '<tr>' ).append(
-				$( '<td>' ).text( i ),
-				$( '<td>' ).text( stats[i].hits ),
-				$( '<td>' ).text( stats[i].checked ),
-				$( '<td>' ).text( stats[i].hits === 0
-						? '-'
-						: ( 100 * stats[i].checked / stats[i].hits ).toFixed( 1 ) + '%'
-					),
-				$( '<td>' ).text( stats[i].errors === undefined
-						? '-'
-						: stats[i].errors
-					),
-				$( '<td>' ).text( stats[i].errors === undefined || stats[i].checked === 0
-						? '-'
-						: ( 100 * stats[i].errors / stats[i].checked ).toFixed( 1 ) + '%'
-					)
-			)
+	wikicode += '\n|}';
+	
+	$( '#mw-content-text' )
+		.prepend(
+			'<b>O código da tabela atualizada é apresentado abaixo:</b><br /><br />' +
+			'<textarea cols="80" rows="10" style="width: 100%; font-family: monospace; line-height: 1.5em;">' +
+				mw.html.escape( wikicode ) +
+			'</textarea>'
 		);
-	}
-	$target.append( $table.tablesorter() );
 	$.removeSpinner( 'spinner-filter-stats' );
+	// $( 'table.sortable' ).tablesorter();
 }
 
 function getAbuseFilterStats(){
 	var param,
 		d = new Date(),
 		firstDay = new Date(d.getFullYear(), d.getMonth(), 1),
-		lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59), // end of the current month
-		// lastDay = new Date(d.getFullYear(), d.getMonth(), 7, 23, 59, 59), // end of the first week of the current month
+		// end of the current month
+		lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59),
+		// end of the first week of the current month
+		// lastDay = new Date(d.getFullYear(), d.getMonth(), 7, 23, 59, 59),
 		getLog = function( queryContinue ){
 			if( queryContinue ){
 				$.extend( param, queryContinue );
@@ -102,7 +107,7 @@ function getAbuseFilterStats(){
 							};
 						}
 					}
-					printTable();
+					printTable( stats );
 				}
 			} )
 			.fail( function ( data ) {
@@ -156,7 +161,12 @@ function addAbuseFilterStatsLink(){
 		'Gerar uma tabela com estatísticas sobre os filtros de edição'
 	) ).click( function( e ){
 		e.preventDefault();
-		mw.loader.using( [ 'mediawiki.api.edit', 'jquery.spinner', 'jquery.tablesorter' ], getVerificationPages );
+		mw.loader.using( [
+			'mediawiki.api.edit',
+			'jquery.spinner',
+			'jquery.tablesorter',
+			'jquery.mwExtension'
+		], getVerificationPages );
 	} );
 }
 
