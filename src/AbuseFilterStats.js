@@ -9,8 +9,7 @@
 'use strict';
 
 var api = new mw.Api(),
-	stats = [],
-	verificationPages = [];
+	stats, verificationPages;
 
 function printTable( table ){
 	var $target, i, checked, errors, hits, id,
@@ -155,6 +154,8 @@ function getAbuseFilterStats(){
 }
 
 function getVerificationPages(){
+	stats = [];
+	verificationPages = [];
 	api.get( {
 		action: 'query',
 		prop: 'revisions',
