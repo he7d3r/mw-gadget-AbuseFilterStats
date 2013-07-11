@@ -162,9 +162,9 @@ function addAbuseFilterStatsLink(){
 	) ).click( function( e ){
 		e.preventDefault();
 		mw.loader.using( [
-			'mediawiki.api.edit',
+			'mediawiki.api',
 			'jquery.spinner',
-			'jquery.tablesorter',
+			// 'jquery.tablesorter',
 			'jquery.mwExtension'
 		], getVerificationPages );
 	} );
