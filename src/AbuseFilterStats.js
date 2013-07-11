@@ -62,59 +62,59 @@ function printTable( table ){
 function getAbuseFilterStats(){
 	var param,
 		d = new Date(),
-		firstDay = new Date(d.getFullYear(), d.getMonth(), 1),
-		// end of the current month
-		lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59),
-		// end of the first week of the current month
-		// lastDay = new Date(d.getFullYear(), d.getMonth(), 7, 23, 59, 59),
-		getLog = function( queryContinue ){
-			if( queryContinue ){
-				$.extend( param, queryContinue );
-			}
+	firstDay = new Date(d.getFullYear(), d.getMonth(), 1),
+	// end of the current month
+	lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59),
+	// end of the first week of the current month
+	// lastDay = new Date(d.getFullYear(), d.getMonth(), 7, 23, 59, 59),
+	getLog = function( queryContinue ){
+		if( queryContinue ){
+			$.extend( param, queryContinue );
+		}
 			api.get( param )
-			.done( function ( data ) {
-				var i, list, log, match;
-				list = data.query.abuselog;
-				for ( i = 0; i < list.length; i++ ){
-					log = list[i];
-					if ( stats[ log.filter_id ] === undefined ){
-						stats[ log.filter_id ] = {
-							hits: 0,
-							checked: 0,
-							errors: 0
-						};
-					} else {
-						stats[ log.filter_id ].hits += 1;
-						match = verificationPages[ log.filter_id ]
-							&& verificationPages[ log.filter_id ]
-								.match( new RegExp( '\\{\\{[Aa]ção *\\|[^}]*(?:1 *= *)?' + log.id +'[^}]*\\}\\}' ) );
-						if ( match ){
-							stats[ log.filter_id ].checked += 1;
-							if ( /erro *= *sim/.test( match[0] ) ){
-								stats[ log.filter_id ].errors += 1;
-							}
-						}
-					}
-				}
-				if( data[ 'query-continue' ] ){
-					getLog( data[ 'query-continue' ].abuselog );
+		.done( function ( data ) {
+			var i, list, log, match;
+			list = data.query.abuselog;
+			for ( i = 0; i < list.length; i++ ){
+				log = list[i];
+				if ( stats[ log.filter_id ] === undefined ){
+					stats[ log.filter_id ] = {
+						hits: 0,
+						checked: 0,
+						errors: 0
+					};
 				} else {
-					for ( i = 1; i < stats.length; i++ ){
-						if ( !stats[i] ){
-							stats[i] = {
-								hits: 0,
-								checked: 0
-							};
+					stats[ log.filter_id ].hits += 1;
+					match = verificationPages[ log.filter_id ]
+						&& verificationPages[ log.filter_id ]
+							.match( new RegExp( '\\{\\{[Aa]ção *\\|[^}]*(?:1 *= *)?' + log.id +'[^}]*\\}\\}' ) );
+					if ( match ){
+						stats[ log.filter_id ].checked += 1;
+						if ( /erro *= *sim/.test( match[0] ) ){
+							stats[ log.filter_id ].errors += 1;
 						}
 					}
-					printTable( stats );
 				}
-			} )
+			}
+				if( data[ 'query-continue' ] ){
+				getLog( data[ 'query-continue' ].abuselog );
+			} else {
+				for ( i = 1; i < stats.length; i++ ){
+					if ( !stats[i] ){
+						stats[i] = {
+							hits: 0,
+							checked: 0
+						};
+						}
+					}
+				printTable( stats );
+			}
+		} )
 			.fail( function ( data ) {
-				mw.log( data.query );
-				$.removeSpinner( 'spinner-filter-stats' );
-			} );
-		};
+			mw.log( data.query );
+			$.removeSpinner( 'spinner-filter-stats' );
+		} );
+	};
 	$( '#firstHeading' ).injectSpinner( 'spinner-filter-stats' );
 	param = {
 		list: 'abuselog',
