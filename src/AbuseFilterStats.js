@@ -9,7 +9,7 @@
 'use strict';
 
 var api = new mw.Api(),
-	stats, verificationPages;
+	stats, verificationPages, d, month;
 
 function printTable( table ){
 	var $target, i, checked, errors, hits, id,
@@ -23,7 +23,10 @@ function printTable( table ){
 			'! data-sort-type="number" | %',
 			'! data-sort-type="number" | Falsos<br />positivos',
 			'! data-sort-type="number" | % das<br />conferidas'
-		].join( '\n' );
+		].join( '\n' ),
+		pad = function( n ){
+			return n < 10 ? '0' + n : n;
+		};
 	table.sort( function( a, b ) {
 		return b.hits - a.hits;
 	} );
@@ -37,7 +40,9 @@ function printTable( table ){
 		errors = table[i].errors;
 		wikicode += '\n|-\n| ' + [
 			'[[Especial:Filtro de abusos/' + id + '|' + id + ']]',
-			'[{{fullurl:Especial:Registro de abusos|wpSearchFilter=' + id + '}} ' + hits + ']',
+			'[{{fullurl:Especial:Registro de abusos|dir=prev&wpSearchFilter=' +
+				id + '&offset=' + d.getFullYear() + pad( month ) +
+				'01000000&limit=' + hits + '}} ' + hits + ']',
 			'[[WP:Filtro de edições/Falsos positivos/Filtro ' + id + '|' + checked + ']]',
 			hits === 0
 				? '-'
@@ -67,13 +72,13 @@ function printTable( table ){
 }
 
 function getAbuseFilterStats(){
-	var param, firstDay, lastDay, getLog,
-		d = new Date(),
-		month = prompt(
-			'Deseja obter as estatísticas referentes a que mês?' +
-				' (forneça um número natural de 1 a 12)',
-			d.getMonth() + 1
-		);
+	var param, firstDay, lastDay, getLog;
+	month = prompt(
+		'Deseja obter as estatísticas referentes a que mês?' +
+			' (forneça um número natural de 1 a 12)',
+		d.getMonth() + 1
+	);
+	d = new Date();
 	if ( month === null ){
 		return;
 	}
