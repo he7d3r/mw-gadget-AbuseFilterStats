@@ -73,12 +73,12 @@ function printTable( table ){
 
 function getAbuseFilterStats(){
 	var param, firstDay, lastDay, getLog;
+	d = new Date();
 	month = prompt(
 		'Deseja obter as estatísticas referentes a que mês?' +
 			' (forneça um número natural de 1 a 12)',
 		d.getMonth() + 1
 	);
-	d = new Date();
 	if ( month === null ){
 		return;
 	}
