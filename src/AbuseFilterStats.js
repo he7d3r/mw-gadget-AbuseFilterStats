@@ -22,7 +22,8 @@ function printTable( table ){
 			'! data-sort-type="number" | Conferidas',
 			'! data-sort-type="number" | %',
 			'! data-sort-type="number" | Falsos<br />positivos',
-			'! data-sort-type="number" | % das<br />conferidas'
+			'! data-sort-type="number" | % das<br />conferidas' /*,
+			'! data-sort-type="number" | % máximo' */
 		].join( '\n' ),
 		pad = function( n ){
 			return n < 10 ? '0' + n : n;
@@ -52,7 +53,10 @@ function printTable( table ){
 				: errors,
 			errors === undefined || checked === 0
 				? '-'
-				: ( 100 * errors / checked ).toFixed( 1 ) + '%'
+				: ( 100 * errors / checked ).toFixed( 1 ) + '%' /*,
+			errors === undefined || hits === 0
+				? '-'
+				: ( 100 * (errors + hits - checked) / hits ).toFixed( 1 ) + '%' */
 		].join( ' || ' );
 	}
 	wikicode += '\n|}';
