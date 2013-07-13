@@ -145,7 +145,6 @@ function getAbuseFilterStats(){
 			}
 		} )
 		.fail( function ( data ) {
-			mw.log( data.query );
 			$.removeSpinner( 'spinner-filter-stats' );
 		} );
 	};
@@ -172,7 +171,7 @@ function getVerificationPages(){
 		generator: 'embeddedin',
 		geititle: 'Predefinição:Lista de falsos positivos (cabeçalho)',
 		geinamespace: 4,
-		geilimit: 10,
+		geilimit: 'max'
 	} )
 	.done( function ( data ) {
 		$.each( data.query.pages, function(id){
@@ -182,9 +181,6 @@ function getVerificationPages(){
 			}
 		} );
 		getAbuseFilterStats();
-	} )
-	.fail( function ( data ) {
-		mw.log( data );
 	} );
 }
 
