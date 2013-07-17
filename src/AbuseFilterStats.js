@@ -58,7 +58,7 @@ function printTable( table ){
 			errors === undefined || hits === 0
 				? '-'
 				: ( 100 * (errors + hits - checked) / hits ).toFixed( 1 ) + '%' */
-		].join( '\n' );
+		].join( '\n| ' );
 	}
 	wikicode += '\n|}';
 
