@@ -13,8 +13,12 @@ var api = new mw.Api(),
 
 function printTable( table ){
 	var $target, i, checked, errors, hits, id,
+		pad = function( n ){
+			return n < 10 ? '0' + n : n;
+		},
+		tableId = 'af-stats-' + d.getFullYear() + '-' + pad( month ),
 		wikicode = [
-			'{| class="wikitable sortable plainlinks"',
+			'{| id="' + tableId + '" class="wikitable sortable plainlinks"',
 			'|+ Controle de qualidade dos filtros de edição',
 			'|-',
 			'! data-sort-type="number" | Filtro',
@@ -24,10 +28,7 @@ function printTable( table ){
 			'! data-sort-type="number" | Falsos<br />positivos',
 			'! data-sort-type="number" | % das<br />conferidas' /*,
 			'! data-sort-type="number" | % máximo' */
-		].join( '\n' ),
-		pad = function( n ){
-			return n < 10 ? '0' + n : n;
-		};
+		].join( '\n' );
 	table.sort( function( a, b ) {
 		return b.hits - a.hits;
 	} );
@@ -57,7 +58,7 @@ function printTable( table ){
 			errors === undefined || hits === 0
 				? '-'
 				: ( 100 * (errors + hits - checked) / hits ).toFixed( 1 ) + '%' */
-		].join( ' || ' );
+		].join( '\n' );
 	}
 	wikicode += '\n|}';
 
@@ -144,7 +145,7 @@ function getAbuseFilterStats(){
 				printTable( stats );
 			}
 		} )
-		.fail( function ( data ) {
+		.fail( function () {
 			$.removeSpinner( 'spinner-filter-stats' );
 		} );
 	};
