@@ -15,7 +15,7 @@ function removeSpinner() {
 }
 
 function printTable( table ){
-	var $target, i, checked, errors, hits, id, disallowedEdits,
+	var $target, i, checked, errors, hits, id,
 		pad = function( n ){
 			return n < 10 ? '0' + n : n;
 		},
@@ -29,7 +29,8 @@ function printTable( table ){
 			'! data-sort-type="text" | Impedir',
 			'! data-sort-type="text" | Avisar',
 			'! data-sort-type="number" | Detecções',
-			'! data-sort-type="number" | Impedimentos',
+			'! data-sort-type="number" | Edições<br />salvas<ref>Não apagadas?</ref>',
+			'! data-sort-type="number" | %',
 			'! data-sort-type="number" | Ações<br />conferidas',
 			'! data-sort-type="number" | %',
 			'! data-sort-type="number" | Falsos<br />positivos',
@@ -47,7 +48,6 @@ function printTable( table ){
 		}
 		id = table[i].id;
 		hits = table[i].hitsInPeriod;
-		disallowedEdits = hits - table[i].savedEdits;
 		checked = table[i].checked;
 		errors = table[i].errors;
 		wikicode += '\n|-\n| ' + [
@@ -62,7 +62,10 @@ function printTable( table ){
 			'[{{fullurl:Especial:Registro de abusos|dir=prev&wpSearchFilter=' +
 				id + '&offset=' + d.getFullYear() + pad( month ) +
 				'01000000&limit=' + hits + '}} ' + hits + ']',
-			disallowedEdits,
+			table[i].savedEdits,
+			hits === 0
+				? '-'
+				: ( 100 * table[i].savedEdits / hits ).toFixed( 1 ) + '%',
 			'[[WP:Filtro de edições/Falsos positivos/Filtro ' + id + '|' + checked + ']]',
 			hits === 0
 				? '-'
@@ -78,7 +81,7 @@ function printTable( table ){
 				: ( 100 * (errors + hits - checked) / hits ).toFixed( 1 ) + '%' */
 		].join( '\n| ' );
 	}
-	wikicode += '\n|}';
+	wikicode += '\n|}\n<references/>';
 
 	$target = $( '#abuse-filter-stats-result' );
 	if ( !$target.length ){
@@ -134,7 +137,7 @@ function generateAbuseFilterStats( ){
 						filterInfo.errors += 1;
 					}
 				}
-				if ( log.revid !== '' ){
+				if ( log.revid !== undefined ){
 					filterInfo.savedEdits += 1;
 				}
 			}
