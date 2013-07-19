@@ -28,9 +28,11 @@ function printTable( table ){
 			'! data-sort-type="text" | Descrição',
 			'! data-sort-type="text" | Impedir',
 			'! data-sort-type="text" | Avisar',
-			'! data-sort-type="number" | Detecções',
+			'! data-sort-type="text" | Etiquetar',
+			'! data-sort-type="number" | Ações',
+			'! data-sort-type="number" | Avisos',
 			'! data-sort-type="number" | Edições<br />salvas<ref>Não apagadas?</ref>',
-			'! data-sort-type="number" | %',
+			'! data-sort-type="number" | % das<br />ações',
 			'! data-sort-type="number" | Ações<br />conferidas',
 			'! data-sort-type="number" | %',
 			'! data-sort-type="number" | Falsos<br />positivos',
@@ -59,9 +61,13 @@ function printTable( table ){
 			table[i].actions.indexOf( 'warn' ) !== -1 ?
 				'{{Tabela-sim}}' :
 				'{{Tabela-não}}',
+			table[i].actions.indexOf( 'tag' ) !== -1 ?
+				'{{Tabela-sim}}' :
+				'{{Tabela-não}}',
 			'[{{fullurl:Especial:Registro de abusos|dir=prev&wpSearchFilter=' +
 				id + '&offset=' + d.getFullYear() + pad( month ) +
 				'01000000&limit=' + hits + '}} ' + hits + ']',
+			table[i].warnings,
 			table[i].savedEdits,
 			hits === 0
 				? '-'
@@ -140,6 +146,9 @@ function generateAbuseFilterStats( ){
 				if ( log.revid !== undefined ){
 					filterInfo.savedEdits += 1;
 				}
+				if ( log.result.indexOf( 'warn' ) !== -1 ){
+					filterInfo.warnings += 1;
+				}
 			}
 			if( data[ 'query-continue' ] ){
 				getLog( data[ 'query-continue' ].abuselog );
@@ -186,6 +195,7 @@ function getVerificationPages(){
 				id: i,
 				hitsInPeriod: 0,
 				savedEdits: 0,
+				warnings: 0,
 				checked: 0,
 				errors: 0,
 				analysisText: ''
