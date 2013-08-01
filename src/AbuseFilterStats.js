@@ -250,7 +250,11 @@ function addAbuseFilterStatsLink(){
 	} );
 }
 
-if ( mw.config.get( 'wgPageName' ) === 'Wikipédia:Filtro_de_edições/Estatísticas' ) {
+if ( mw.config.get( 'wgCanonicalSpecialPageName' ) === 'AbuseFilter'
+	|| ( mw.config.get( 'wgDBname' ) === 'ptwiki'
+		&& mw.config.get( 'wgPageName' ).indexOf( 'Wikipédia:Filtro_de_edições' ) !== -1
+	)
+) {
 	$( addAbuseFilterStatsLink );
 }
 
