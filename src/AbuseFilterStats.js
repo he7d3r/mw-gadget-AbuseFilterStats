@@ -165,7 +165,7 @@ function generateAbuseFilterStats( ){
 				filterInfo = stats[ log.filter_id ];
 				filterInfo.hitsInPeriod += 1;
 				analysis = filterInfo.analysisText
-					.match( new RegExp( mw.msg( 'afs-template-regex', log.id ) ) );
+					.match( new RegExp( mw.message( 'afs-template-regex', log.id ).plain() ) );
 				if ( analysis ){
 					filterInfo.checked += 1;
 					if ( /erro *= *sim/.test( analysis[0] ) ){
