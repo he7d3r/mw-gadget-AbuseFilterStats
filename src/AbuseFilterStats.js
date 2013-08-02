@@ -8,6 +8,44 @@
 ( function ( mw, $ ) {
 'use strict';
 
+mw.messages.set( {
+	'afs-missing-filter-version': 'Não foi possível encontrar a versão do filtro $1 correspondente ao log $2.',
+	'afs-invalid-month': 'Operação cancelada! O mês fornecido não é válido.',
+	'afs-month-question': 'Deseja obter as estatísticas referentes a que mês?' +
+		' (forneça um número natural de 1 a 12)',
+	'afs-link': 'Estatísticas dos filtros',
+	'afs-link-description': 'Gerar uma tabela com estatísticas sobre os filtros de edição',
+	'afs-missing-filter-revisions': 'Não foram encontradas revisões do filtro $1',
+	'afs-header-template': 'Predefinição:Lista de falsos positivos (cabeçalho)',
+	'afs-template-regex': '\\{\\{[Aa]ção *\\|[^}]*(?:1 *= *)?$1[^}]*\\}\\}',
+	'afs-result-intro': 'O código da tabela atualizada é apresentado abaixo:',
+	'afs-analysis-link': '[[WP:Filtro de edições/Falsos positivos/Filtro $1|$2]]',
+	'afs-table-yes': '{{Tabela-sim}}',
+	'afs-table-no': '{{Tabela-não}}',
+	'afs-table-header': 'Controle de qualidade dos filtros de edição',
+	'afs-table-filter': 'Filtro',
+	'afs-table-date': 'Data',
+	'afs-table-description': 'Descrição',
+	'afs-table-settings': 'Configurações do filtro',
+	'afs-table-hits': 'Total',
+	'afs-table-hits-text': 'Número de registros',
+	'afs-table-disallow': 'Impedir',
+	'afs-table-warn': 'Avisar',
+	'afs-table-tag': 'Etiquetar',
+	'afs-table-total': 'Total',
+	'afs-table-warnings': 'Avisos<br />enviados',
+	'afs-table-saved-text': 'Edições salvas<ref>Não apagadas?</ref>',
+	'afs-table-checked-text': '[[WP:Filtro de edições/Falsos positivos|Ações conferidas]]',
+	'afs-table-saved': 'Total',
+	'afs-table-saved-percent': '% dos<br />registros',
+	'afs-table-checked': 'Total',
+	'afs-table-checked-percent': '% dos<br />registros',
+	'afs-table-false-positives-text': 'Falsos positivos',
+	'afs-table-false-positives': 'Total',
+	'afs-table-false-positives-percent': '% dos<br />conferidos',
+	'afs-table-false-positives-percent-max': '% máximo'
+} );
+
 var api, stats, d, month;
 
 function removeSpinner() {
@@ -22,30 +60,30 @@ function printTable( table ){
 		tableId = 'af-stats-' + d.getFullYear() + '-' + pad( month ),
 		wikicode = [
 			'{| id="' + tableId + '" class="wikitable sortable plainlinks"',
-			'|+ Controle de qualidade dos filtros de edição',
+			'|+ ' + mw.msg( 'afs-table-header' ),
 			'|-',
-			'! rowspan=4 data-sort-type="number" | Filtro',
-			'! rowspan=4 data-sort-type="text" | Descrição',
-			'! colspan=3 | Configurações do filtro',
-			'! colspan=8 | Número de registros',
+			'! rowspan=4 data-sort-type="number" | ' + mw.msg( 'afs-table-filter' ),
+			'! rowspan=4 data-sort-type="text" | ' + mw.msg( 'afs-table-description' ),
+			'! colspan=3 | ' + mw.msg( 'afs-table-settings' ),
+			'! colspan=8 | ' + mw.msg( 'afs-table-hits-text' ),
 			'|-',
-			'! rowspan=3 data-sort-type="text" | Impedir',
-			'! rowspan=3 data-sort-type="text" | Avisar',
-			'! rowspan=3 data-sort-type="text" | Etiquetar',
-			'! rowspan=3 data-sort-type="number" | Total',
-			'! rowspan=3 data-sort-type="number" | Avisos<br />enviados',
-			'! colspan=2 | Edições salvas<ref>Não apagadas?</ref>',
-			'! colspan=4 | [[WP:Filtro de edições/Falsos positivos|Ações conferidas]]',
+			'! rowspan=3 data-sort-type="text" | ' + mw.msg( 'afs-table-disallow' ),
+			'! rowspan=3 data-sort-type="text" | ' + mw.msg( 'afs-table-warn' ),
+			'! rowspan=3 data-sort-type="text" | ' + mw.msg( 'afs-table-tag' ),
+			'! rowspan=3 data-sort-type="number" | ' + mw.msg( 'afs-table-hits' ),
+			'! rowspan=3 data-sort-type="number" | ' + mw.msg( 'afs-table-warnings' ),
+			'! colspan=2 | ' + mw.msg( 'afs-table-saved-text' ),
+			'! colspan=4 | ' + mw.msg( 'afs-table-checked-text' ),
 			'|-',
-			'! rowspan=2 data-sort-type="number" | Total',
-			'! rowspan=2 data-sort-type="number" | % dos<br />registros',
-			'! rowspan=2 data-sort-type="number" | Total',
-			'! rowspan=2 data-sort-type="number" | % dos<br />registros',
-			'! colspan=2 | Falsos positivos',
+			'! rowspan=2 data-sort-type="number" | ' + mw.msg( 'afs-table-saved' ),
+			'! rowspan=2 data-sort-type="number" | ' + mw.msg( 'afs-table-saved-percent'),
+			'! rowspan=2 data-sort-type="number" | ' + mw.msg( 'afs-table-checked' ),
+			'! rowspan=2 data-sort-type="number" | ' + mw.msg( 'afs-table-checked-percent'),
+			'! colspan=2 | ' + mw.msg( 'afs-table-false-positives-text' ),
 			'|-',
-			'! data-sort-type="number" | Total',
-			'! data-sort-type="number" | % dos<br />conferidos' /*,
-			'! data-sort-type="number" | % máximo' */
+			'! data-sort-type="number" | ' + mw.msg( 'afs-table-false-positives' ),
+			'! data-sort-type="number" | ' + mw.msg( 'afs-table-false-positives-percent' ) /*,
+			'! data-sort-type="number" | ' + mw.msg( 'afs-table-false-positives-percent-max' ) */
 		].join( '\n' );
 	/*
 	table.sort( function( a, b ) {
@@ -57,22 +95,24 @@ function printTable( table ){
 			continue;
 		}
 		id = table[i].id;
+
 		hits = table[i].hitsInPeriod;
 		checked = table[i].checked;
 		errors = table[i].errors;
 		wikicode += '\n|-\n| ' + [
-			'[[Especial:Filtro de abusos/' + id + '|' + id + ']]',
+			'[[Special:AbuseFilter/' + id + '|' + id + ']]',
+
 			table[i].description,
 			table[i].actions.indexOf( 'disallow' ) !== -1 ?
-				'{{Tabela-sim}}' :
-				'{{Tabela-não}}',
+				mw.message( 'afs-table-yes' ).plain():
+				mw.message( 'afs-table-no' ).plain(),
 			table[i].actions.indexOf( 'warn' ) !== -1 ?
-				'{{Tabela-sim}}' :
-				'{{Tabela-não}}',
+				mw.message( 'afs-table-yes' ).plain():
+				mw.message( 'afs-table-no' ).plain(),
 			table[i].actions.indexOf( 'tag' ) !== -1 ?
-				'{{Tabela-sim}}' :
-				'{{Tabela-não}}',
-			'[{{fullurl:Especial:Registro de abusos|dir=prev&wpSearchFilter=' +
+				mw.message( 'afs-table-yes' ).plain():
+				mw.message( 'afs-table-no' ).plain(),
+			'[{{fullurl:Special:AbuseLog|dir=prev&wpSearchFilter=' +
 				id + '&offset=' + d.getFullYear() + pad( month ) +
 				'01000000&limit=' + hits + '}} ' + hits + ']',
 			table[i].warnings,
@@ -80,7 +120,7 @@ function printTable( table ){
 			hits === 0
 				? '-'
 				: ( 100 * table[i].savedEdits / hits ).toFixed( 1 ) + '%',
-			'[[WP:Filtro de edições/Falsos positivos/Filtro ' + id + '|' + checked + ']]',
+			mw.msg( 'afs-analysis-link', id, checked ),
 			hits === 0
 				? '-'
 				: ( 100 * checked / hits ).toFixed( 1 ) + '%',
@@ -102,7 +142,7 @@ function printTable( table ){
 		$target = $( '<div id="abuse-filter-stats-result">' ).prependTo( '#mw-content-text' );
 	}
 	$target.empty().append(
-		'<b>O código da tabela atualizada é apresentado abaixo:</b><br /><br />' +
+		'<b>' + mw.msg( 'afs-result-intro' ) + '</b><br /><br />' +
 		'<textarea cols="80" rows="10" style="width: 100%; font-family: monospace; line-height: 1.5em;">' +
 			mw.html.escape( wikicode ) +
 		'</textarea>'
@@ -114,17 +154,13 @@ function printTable( table ){
 function generateAbuseFilterStats( ){
 	var param, firstDay, lastDay, getLog;
 	d = new Date();
-	month = prompt(
-		'Deseja obter as estatísticas referentes a que mês?' +
-			' (forneça um número natural de 1 a 12)',
-		d.getMonth() + 1
-	);
+	month = prompt( mw.msg( 'afs-month-question' ), d.getMonth() + 1 );
 	if ( month === null ){
 		return;
 	}
 	month = parseInt( month, 10 );
 	if ( isNaN( month ) || month < 0 || 11 < month ){
-		alert( 'Operação cancelada! O mês fornecido não é válido.' );
+		alert( mw.msg( 'afs-invalid-month' ) );
 		return;
 	}
 	firstDay = new Date(d.getFullYear(), month - 1, 1);
@@ -144,7 +180,7 @@ function generateAbuseFilterStats( ){
 				filterInfo = stats[ log.filter_id ];
 				filterInfo.hitsInPeriod += 1;
 				analysis = filterInfo.analysisText
-					.match( new RegExp( '\\{\\{[Aa]ção *\\|[^}]*(?:1 *= *)?' + log.id +'[^}]*\\}\\}' ) );
+					.match( new RegExp( mw.msg( 'afs-template-regex', log.id ) ) );
 				if ( analysis ){
 					filterInfo.checked += 1;
 					if ( /erro *= *sim/.test( analysis[0] ) ){
@@ -185,7 +221,7 @@ function getVerificationPages(){
 		prop: 'revisions',
 		rvprop: 'content',
 		generator: 'embeddedin',
-		geititle: 'Predefinição:Lista de falsos positivos (cabeçalho)',
+		geititle: mw.msg( 'afs-header-template' ),
 		geinamespace: 4,
 		geilimit: 'max'
 	} )
@@ -236,9 +272,9 @@ function addAbuseFilterStatsLink(){
 	$( mw.util.addPortletLink(
 		'p-cactions',
 		'#',
-		'Estatísticas dos filtros',
+		mw.msg( 'afs-link' ),
 		'ca-AbuseFilterStatsLink',
-		'Gerar uma tabela com estatísticas sobre os filtros de edição'
+		mw.msg( 'afs-link-description' )
 	) ).click( function( e ){
 		e.preventDefault();
 		mw.loader.using( [
