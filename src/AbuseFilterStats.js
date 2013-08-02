@@ -46,7 +46,7 @@ mw.messages.set( {
 	'afs-table-false-positives-percent-max': '% máximo'
 } );
 
-var api, stats, d, month;
+var api, stats, d, month, firstDayOfSelectedMonth, lastDayOfSelectedMonth;
 
 function removeSpinner() {
 	$.removeSpinner( 'spinner-filter-stats' );
@@ -152,22 +152,7 @@ function printTable( table ){
 }
 
 function generateAbuseFilterStats( ){
-	var param, firstDayOfSelectedMonth, lastDayOfSelectedMonth, getLog;
-	d = new Date();
-	month = prompt( mw.msg( 'afs-month-question' ), d.getMonth() + 1 );
-	if ( month === null ){
-		return;
-	}
-	month = parseInt( month, 10 );
-	if ( isNaN( month ) || month < 1 || 12 < month ){
-		alert( mw.msg( 'afs-invalid-month' ) );
-		return;
-	}
-	firstDayOfSelectedMonth = new Date( Date.UTC(d.getFullYear(), month - 1, 1) );
-	// end of the selected month
-	lastDayOfSelectedMonth = new Date( Date.UTC(d.getFullYear(), month, 0, 23, 59, 59) );
-	// end of the first week of the selected month
-	// lastDayOfSelectedMonth = new Date( Date.UTC(d.getFullYear(), d.getMonth(), 7, 23, 59, 59) );
+	var param, getLog;
 	getLog = function( queryContinue ){
 		if( queryContinue ){
 			$.extend( param, queryContinue );
@@ -202,12 +187,11 @@ function generateAbuseFilterStats( ){
 		} )
 		.fail( removeSpinner );
 	};
-	$( '#firstHeading' ).injectSpinner( 'spinner-filter-stats' );
 	param = {
 		list: 'abuselog',
 		afllimit: 'max',
 		// aflfilter: 123,
-		aflstart: firstDayOfSelectedMonth.toISOString(),
+		aflstart: firstDayOfSelectedMonth.toISOString(), // FIXME?
 		aflend: lastDayOfSelectedMonth.toISOString(),
 		aflprop: 'ids|revid|result', // |filter|user|title|action|timestamp|hidden|details|ip
 		afldir: 'newer'
@@ -251,6 +235,7 @@ function getVerificationPages(){
 }
 
 function getFilterList(){
+	$( '#firstHeading' ).injectSpinner( 'spinner-filter-stats' );
 	api = new mw.Api();
 	stats = [];
 	api.get( {
@@ -277,6 +262,21 @@ function addAbuseFilterStatsLink(){
 		mw.msg( 'afs-link-description' )
 	) ).click( function( e ){
 		e.preventDefault();
+		d = new Date();
+		month = prompt( mw.msg( 'afs-month-question' ), d.getMonth() + 1 );
+		if ( month === null ){
+			return;
+		}
+		month = parseInt( month, 10 );
+		if ( isNaN( month ) || month < 1 || 12 < month ){
+			alert( mw.msg( 'afs-invalid-month' ) );
+			return;
+		}
+		firstDayOfSelectedMonth = new Date( Date.UTC(d.getFullYear(), month - 1, 1) );
+		// end of the selected month
+		lastDayOfSelectedMonth = new Date( Date.UTC(d.getFullYear(), month, 0, 23, 59, 59) );
+		// end of the first week of the selected month
+		// lastDayOfSelectedMonth = new Date( Date.UTC(d.getFullYear(), d.getMonth(), 7, 23, 59, 59) );
 		mw.loader.using( [
 			'mediawiki.api',
 			'jquery.spinner',
