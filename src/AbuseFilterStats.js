@@ -152,22 +152,22 @@ function printTable( table ){
 }
 
 function generateAbuseFilterStats( ){
-	var param, firstDay, lastDay, getLog;
+	var param, firstDayOfSelectedMonth, lastDayOfSelectedMonth, getLog;
 	d = new Date();
 	month = prompt( mw.msg( 'afs-month-question' ), d.getMonth() + 1 );
 	if ( month === null ){
 		return;
 	}
 	month = parseInt( month, 10 );
-	if ( isNaN( month ) || month < 0 || 11 < month ){
+	if ( isNaN( month ) || month < 1 || 12 < month ){
 		alert( mw.msg( 'afs-invalid-month' ) );
 		return;
 	}
-	firstDay = new Date(d.getFullYear(), month - 1, 1);
-	// end of the current month
-	lastDay = new Date(d.getFullYear(), month, 0, 23, 59, 59);
-	// end of the first week of the current month
-	// lastDay = new Date(d.getFullYear(), d.getMonth(), 7, 23, 59, 59);
+	firstDayOfSelectedMonth = new Date( Date.UTC(d.getFullYear(), month - 1, 1) );
+	// end of the selected month
+	lastDayOfSelectedMonth = new Date( Date.UTC(d.getFullYear(), month, 0, 23, 59, 59) );
+	// end of the first week of the selected month
+	// lastDayOfSelectedMonth = new Date( Date.UTC(d.getFullYear(), d.getMonth(), 7, 23, 59, 59) );
 	getLog = function( queryContinue ){
 		if( queryContinue ){
 			$.extend( param, queryContinue );
@@ -207,8 +207,8 @@ function generateAbuseFilterStats( ){
 		list: 'abuselog',
 		afllimit: 'max',
 		// aflfilter: 123,
-		aflstart: firstDay.toISOString(),
-		aflend: lastDay.toISOString(),
+		aflstart: firstDayOfSelectedMonth.toISOString(),
+		aflend: lastDayOfSelectedMonth.toISOString(),
 		aflprop: 'ids|revid|result', // |filter|user|title|action|timestamp|hidden|details|ip
 		afldir: 'newer'
 	};
