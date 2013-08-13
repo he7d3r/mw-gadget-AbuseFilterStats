@@ -165,7 +165,7 @@ function printTable( table ){
 					mw.message( 'afs-table-no' ).plain()
 				),
 			'[' + mw.config.get( 'wgServer' ) +
-				mw.util.wikiGetlink( 'Special:AbuseLog' ) +
+				mw.util.wikiGetlink( 'Special:AbuseLog' ) + '?' +
 				$.param( {
 					dir: 'prev',
 					wpSearchFilter: id,
