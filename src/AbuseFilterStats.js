@@ -164,9 +164,14 @@ function printTable( table ){
 					mw.message( 'afs-table-yes' ).plain() :
 					mw.message( 'afs-table-no' ).plain()
 				),
-			'[{{fullurl:Special:AbuseLog|dir=prev&wpSearchFilter=' +
-				id + '&offset=' + offset + '&limit=' + hits +
-				'}} ' + hits + ']',
+			'[' + mw.config.get( 'wgServer' ) +
+				mw.util.wikiGetlink( 'Special:AbuseLog' ) +
+				$.param( {
+					dir: 'prev',
+					wpSearchFilter: id,
+					offset: offset,
+					limit: hits
+				} ) + ' ' + hits + ']',
 			row.warnings,
 			row.savedEdits,
 			hits === 0
