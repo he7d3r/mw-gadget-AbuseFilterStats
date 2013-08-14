@@ -92,7 +92,8 @@ function printTable( table ){
 			'|+ ' + mw.msg( 'afs-table-header' ),
 			'|-',
 			'! rowspan=4 data-sort-type="number" | ' + mw.msg( 'afs-table-filter' ),
-			'! rowspan=4 data-sort-type="number" style="width: 9em;" | ' + mw.msg( 'afs-table-date' ),
+			// TODO: use data-sort-type="isoDate", once [[bugzilla:52842]] is fixed
+			'! rowspan=4 style="width: 9em;" | ' + mw.msg( 'afs-table-date' ),
 			'! rowspan=4 data-sort-type="text" | ' + mw.msg( 'afs-table-description' ),
 			'! colspan=3 | ' + mw.msg( 'afs-table-settings' ),
 			'! colspan=8 | ' + mw.msg( 'afs-table-hits-text' ),
