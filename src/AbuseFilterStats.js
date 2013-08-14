@@ -38,7 +38,7 @@ mw.messages.set( {
 	'afs-table-total': 'Total',
 	'afs-table-warnings': 'Avisos<br />enviados',
 	'afs-table-saved-text': 'Edições salvas',
-	'afs-table-checked-text': '[[WP:Filtro de edições/Falsos positivos|Ações conferidas]]',
+	'afs-table-checked-text': 'Ações conferidas',
 	'afs-table-saved': 'Total',
 	'afs-table-saved-percent': '% dos<br />registros',
 	'afs-table-checked': 'Total',
