@@ -123,7 +123,12 @@ function printTable( table ){
 	*/
 	for ( i = 0; i < table.length; i++ ){
 		row = table[i];
-		isOldVersion = i !== 0 && row.id === table[ i - 1 ].id;
+		if ( lastDayOfSelectedMonth < row.date ){
+			// This filter didn't exist on the selected month
+			// (or it is very old and its only logs are from after the selected month)
+			continue;
+		}
+		isOldVersion = !row.isLatestVersion;
 		id = row.id;
 		ts = row.timestamp;
 		hits = row.hitsInPeriod;
@@ -346,7 +351,7 @@ function getFilterList(){
 			action: 'query',
 			list: 'logevents',
 			leaction: 'abusefilter/modify',
-			lestart: lastDayOfSelectedMonth.toISOString(), // lastDayOfCurrentMonth.toISOString(),
+			// lestart: lastDayOfSelectedMonth.toISOString(), // lastDayOfCurrentMonth.toISOString(),
 			// leend: firstDayOfSelectedMonth.toISOString(),
 			leprop: 'timestamp|details',
 			letitle: mw.msg( 'afs-filter-page', id ),
@@ -362,20 +367,43 @@ function getFilterList(){
 
 		api.get( param )
 		.done( function ( data ) {
-			var i, logDate, revs, r, row,
+			var i, logDate, curFilterRevs, rev, r,
 				changes = data.query.logevents;
 			// From the newer to the oldest log
 			for ( i = 0; i < changes.length; i++ ){
 				logDate = new Date ( changes[i].timestamp );
-				if ( firstDayOfSelectedMonth <= logDate
-					|| ( logDate < firstDayOfSelectedMonth
-						&& ! filterRevisions[ changes[i]['1'] ].length
-					)
+				curFilterRevs = filterRevisions[ changes[i]['1'] ];
+				rev = {
+					timestamp: changes[i].timestamp,
+					date: new Date ( changes[i].timestamp ),
+					version: changes[i]['0'],
+					isLatestVersion: !curFilterRevs.length
+				};
+				if ( lastDayOfSelectedMonth < logDate ){
+					// The oldest change made after the selected month
+					// (if it exists) will be the first in the list
+					curFilterRevs[0] = rev;
+				} else if ( firstDayOfSelectedMonth <= logDate ){
+					// Change made during the selected month
+					// push and continue
+					if( curFilterRevs.length && lastDayOfSelectedMonth < curFilterRevs[0].date ){
+						curFilterRevs[0] = rev;
+					} else {
+						curFilterRevs.push( rev );
+					}
+				} else if ( ! curFilterRevs.length
+					// In the unlikely event that a log was made exactly in the beggining of the month,
+					// there is no need for a log from the previous month
+					|| firstDayOfSelectedMonth !== curFilterRevs[0].date
 				){
-					filterRevisions[ changes[i]['1'] ].push( {
-						timestamp: changes[i].timestamp,
-						version: changes[i]['0']
-					} );
+					// Latest change made before the selected month
+					// push this log and ignore the next logs
+					if( curFilterRevs.length && lastDayOfSelectedMonth < curFilterRevs[0].date ){
+						curFilterRevs[0] = rev;
+					} else {
+						curFilterRevs.push( rev );
+					}
+					break;
 				}
 			}
 			// logDate = new Date ( changes[ changes.length - 1 ].timestamp );
@@ -387,6 +415,10 @@ function getFilterList(){
 				getRevisionsOfFilter( id, data[ 'query-continue' ].logevents );
 				return;
 			}
+			// The current log is:
+			// * Not defined; or
+			// * From before the selected month; or
+			// * The oldest log available for this title (be aware of [[bugzilla:52919]])
 			if (
 				!oldLogs
 				&& (
@@ -428,25 +460,35 @@ function getFilterList(){
 			// }
 			newStats = [];
 			for ( i = 0; i < filters.length; i++ ){
-				revs = filterRevisions[ filters[i].id ];
-				if( !revs.length ){
+				curFilterRevs = filterRevisions[ filters[i].id ];
+				if( !curFilterRevs.length ){
+					// This might happens because of [[bugzilla:52919]]
 					console.warn( mw.msg( 'afs-missing-filter-revisions', filters[i].id ) );
 				}
-				for ( r = 0; r < revs.length; r++ ){
+				/*
+				// && curFilterRevs.length === 1
+				else if ( lastDayOfSelectedMonth < curFilterRevs[0].date ){
+					// Do not add this filter to the table, since
+					// it was created after the selected month
+					// FIXME: the filter might be very old and
+					// its only logs are from after the selected month,
+					// due to [[bugzilla:52919]]
+					continue;
+				}
+				*/
+				for ( r = 0; r < curFilterRevs.length; r++ ){
 					newStats.push(
 						$.extend( {},
 							emptyRow,
-							revs[ r ],
-							r === 0 ? filters[i] : {
-								id: filters[i].id
-								
-							}
+							curFilterRevs[ r ],
+							curFilterRevs[ r ].isLatestVersion ?
+								filters[i] :
+								{
+									id: filters[i].id
+								}
 						)
 					);
 				}
-			}
-			for ( row = 0; row < newStats.length; row++ ) {
-				newStats[ row ].date = new Date ( newStats[ row ].timestamp );
 			}
 			getVerificationPages();
 		} )
