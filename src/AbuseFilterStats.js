@@ -385,7 +385,9 @@ function getFilterList(){
 					data[ 'query-continue' ].logevents.letitle = 'Special:AbuseFilter/' + id;
 				}
 				getRevisionsOfFilter( id, data[ 'query-continue' ].logevents );
-			} else if (
+				return;
+			}
+			if (
 				!oldLogs
 				&& (
 					!changes.length
@@ -402,56 +404,51 @@ function getFilterList(){
 					lestart: lastDayOfSelectedMonth.toISOString(), // lastDayOfCurrentMonth.toISOString(),
 					letitle: 'Special:AbuseFilter/' + id
 				} );
-				
-			} else {
-				cur++;
-				if( cur < filters.length ){
-					console.log( 'getRevisionsOfFilter: ' + filters[ cur ].id );
-					oldLogs = false;
-					mw.notify(
-						mw.msg( 'afs-getting-filter-revisions', filters[ cur ].id ),
-						{
-							tag: 'stats',
-							title: mw.msg( 'afs-getting-data' )
-						}
+				return;
+			}
+			cur++;
+			if( cur < filters.length ){
+				console.log( 'getRevisionsOfFilter: ' + filters[ cur ].id );
+				oldLogs = false;
+				mw.notify(
+					mw.msg( 'afs-getting-filter-revisions', filters[ cur ].id ),
+					{
+						tag: 'stats',
+						title: mw.msg( 'afs-getting-data' )
+					}
+				);
+				getRevisionsOfFilter( filters[ cur ].id );
+				return;
+			}
+			// TODO: Make sure revisions are sorted from newest to oldest?
+			// for ( i = 1; i <= filters.length; i++ ){
+				// filterRevisions[ i ].sort( function( a, b ) {
+					// return ( new Date ( a.timestamp ) ) - ( new Date ( b.timestamp ) );
+				// } );
+			// }
+			newStats = [];
+			for ( i = 0; i < filters.length; i++ ){
+				revs = filterRevisions[ filters[i].id ];
+				if( !revs.length ){
+					console.warn( mw.msg( 'afs-missing-filter-revisions', filters[i].id ) );
+				}
+				for ( r = 0; r < revs.length; r++ ){
+					newStats.push(
+						$.extend( {},
+							emptyRow,
+							revs[ r ],
+							r === 0 ? filters[i] : {
+								id: filters[i].id
+								
+							}
+						)
 					);
-					getRevisionsOfFilter( filters[ cur ].id );
-				} else {
-					// TODO: Make sure revisions are sorted from newest to oldest?
-					// for ( i = 1; i <= filters.length; i++ ){
-						// filterRevisions[ i ].sort( function( a, b ) {
-							// return ( new Date ( a.timestamp ) ) - ( new Date ( b.timestamp ) );
-						// } );
-					// }
-					newStats = [];
-					for ( i = 0; i < filters.length; i++ ){
-						revs = filterRevisions[ filters[i].id ];
-						if( !revs.length ){
-							console.warn( mw.msg( 'afs-missing-filter-revisions', filters[i].id ) );
-						}
-						for ( r = 0; r < revs.length; r++ ){
-							newStats.push(
-								$.extend( {},
-									emptyRow,
-									revs[ r ],
-									r === 0 ? filters[i] : {
-										id: filters[i].id
-										
-									}
-								)
-							);
-						}
-					}
-					for ( row = 0; row < newStats.length; row++ ) {
-						newStats[ row ].date = new Date ( newStats[ row ].timestamp );
-					}
-					// removeSpinner();
-					console.log( 'filterRevisions = ', filterRevisions );
-					// FIXME: Use the filter history
-					console.log( 'getVerificationPages();' );
-					getVerificationPages();
 				}
 			}
+			for ( row = 0; row < newStats.length; row++ ) {
+				newStats[ row ].date = new Date ( newStats[ row ].timestamp );
+			}
+			getVerificationPages();
 		} )
 		.fail( removeSpinner );
 	};
