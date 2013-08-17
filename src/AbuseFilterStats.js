@@ -47,9 +47,6 @@ mw.messages.set( {
 	'afs-table-false-positives': 'Total',
 	'afs-table-false-positives-percent': '% dos<br />conferidos',
 	'afs-table-false-positives-percent-max': '% máximo',
-	'afs-old-version-note': 'Aparentemente não é possível obter esta informação' +
-		' sobre versões antigas dos filtros por meio da API do MediaWiki' +
-		' utilizada para gerar essas estatísticas',
 	'afs-saved-note': 'Não apagadas? Vide página discussão.',
 	'afs-getting-filter-list': 'Consultando a lista de filtros...',
 	'afs-getting-data': 'Obtendo dados...',
@@ -148,24 +145,24 @@ function printTable( table ){
 			'[[Special:AbuseFilter/' + id + '|' + id + ']]',
 			row.version ?
 				'[[Special:AbuseFilter/history/' + id + '/item/' + row.version + '|' + ts + ']]' :
-				'[[Special:AbuseFilter/history/' + id + '|?]]',
+				'[[Special:AbuseFilter/history/' + id + '|?]]<sup>[[bugzilla:52919|bug]]</sup>',
 			isOldVersion ?
-				'? <ref name="old-version" />' :
+				'? <sup>[[bugzilla:52920|bug]]</sup>' :
 				row.description,
 			isOldVersion ?
-				'? <ref name="old-version" />' :
+				'? <sup>[[bugzilla:52920|bug]]</sup>' :
 				( row.actions.indexOf( 'disallow' ) !== -1 ?
 					mw.message( 'afs-table-yes' ).plain() :
 					mw.message( 'afs-table-no' ).plain()
 				),
 			isOldVersion ?
-				'? <ref name="old-version" />' :
+				'? <sup>[[bugzilla:52920|bug]]</sup>' :
 				( row.actions.indexOf( 'warn' ) !== -1 ?
 					mw.message( 'afs-table-yes' ).plain() :
 					mw.message( 'afs-table-no' ).plain()
 				),
 			isOldVersion ?
-				'? <ref name="old-version" />' :
+				'? <sup>[[bugzilla:52920|bug]]</sup>' :
 				( row.actions.indexOf( 'tag' ) !== -1 ?
 					mw.message( 'afs-table-yes' ).plain() :
 					mw.message( 'afs-table-no' ).plain()
@@ -200,7 +197,6 @@ function printTable( table ){
 	}
 	wikicode += '\n|}\n' + [
 		'<references>',
-		'<ref name="old-version">' + mw.msg( 'afs-old-version-note' ) + '</ref>',
 		'<ref name="saved">' + mw.msg( 'afs-saved-note' ) + '</ref>',
 		'</references>'
 	].join('\n');
