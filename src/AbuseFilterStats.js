@@ -51,6 +51,7 @@ mw.messages.set( {
 	'afs-getting-filter-list': 'Consultando a lista de filtros...',
 	'afs-getting-data': 'Obtendo dados...',
 	'afs-getting-filter-revisions' : 'Obtendo as versões do filtro $1...',
+	'afs-getting-old-revision-info' : 'Obtendo informações sobre a versão $1 do filtro $2...',
 	'afs-getting-verification-pages': 'Obtendo os registros analisados...',
 	'afs-getting-logs': 'Obtendo os registros do mês escolhido...'
 } );
@@ -79,7 +80,7 @@ function removeSpinner() {
 }
 
 function printTable( table ){
-	var $target, i, row, checked, errors, hits, id, ts, isOldVersion, offset,
+	var $target, i, row, checked, errors, hits, id, ts, offset,
 		pad = function( n ){
 			return n < 10 ? '0' + n : n;
 		},
@@ -125,7 +126,6 @@ function printTable( table ){
 			// (or it is very old and its only logs are from after the selected month)
 			continue;
 		}
-		isOldVersion = !row.isLatestVersion;
 		id = row.id;
 		ts = row.timestamp;
 		hits = row.hitsInPeriod;
@@ -146,27 +146,16 @@ function printTable( table ){
 			row.version ?
 				'[[Special:AbuseFilter/history/' + id + '/item/' + row.version + '|' + ts + ']]' :
 				'[[Special:AbuseFilter/history/' + id + '|?]]<sup>[[bugzilla:52919|bug]]</sup>',
-			isOldVersion ?
-				'? <sup>[[bugzilla:52920|bug]]</sup>' :
-				row.description,
-			isOldVersion ?
-				'? <sup>[[bugzilla:52920|bug]]</sup>' :
-				( row.actions.indexOf( 'disallow' ) !== -1 ?
-					mw.message( 'afs-table-yes' ).plain() :
-					mw.message( 'afs-table-no' ).plain()
-				),
-			isOldVersion ?
-				'? <sup>[[bugzilla:52920|bug]]</sup>' :
-				( row.actions.indexOf( 'warn' ) !== -1 ?
-					mw.message( 'afs-table-yes' ).plain() :
-					mw.message( 'afs-table-no' ).plain()
-				),
-			isOldVersion ?
-				'? <sup>[[bugzilla:52920|bug]]</sup>' :
-				( row.actions.indexOf( 'tag' ) !== -1 ?
-					mw.message( 'afs-table-yes' ).plain() :
-					mw.message( 'afs-table-no' ).plain()
-				),
+			row.description,
+			row.actions.indexOf( 'disallow' ) !== -1 ?
+				mw.message( 'afs-table-yes' ).plain() :
+				mw.message( 'afs-table-no' ).plain(),
+			row.actions.indexOf( 'warn' ) !== -1 ?
+				mw.message( 'afs-table-yes' ).plain() :
+				mw.message( 'afs-table-no' ).plain(),
+			row.actions.indexOf( 'tag' ) !== -1 ?
+				mw.message( 'afs-table-yes' ).plain() :
+				mw.message( 'afs-table-no' ).plain(),
 			'[' + mw.config.get( 'wgServer' ) +
 				mw.util.wikiGetlink( 'Special:AbuseLog' ) + '?' +
 				$.param( {
@@ -338,6 +327,54 @@ function getVerificationPages(){
 	.fail( removeSpinner );
 }
 
+function getOldFilterInfo( from ) {
+	var i;
+	for ( i = from; i < newStats.length; i++ ){
+		if( !newStats[i].isLatestVersion && newStats[i].id && newStats[i].version ){
+			break;
+		}
+	}
+	if( i === newStats.length ){
+		getVerificationPages();
+		return;
+	}
+	mw.notify(
+		mw.msg( 'afs-getting-old-revision-info', newStats[i].version, newStats[i].id ),
+		{
+			tag: 'stats',
+			title: mw.msg( 'afs-getting-data' )
+		}
+	);
+	$.ajax( {
+		url: mw.util.wikiGetlink(
+			'Special:AbuseFilter/history/' + newStats[i].id +
+				'/item/' + newStats[i].version
+		) + '?uselang=qqx'
+	} )
+	.done( function( data ){
+		var $data = $( data );
+		newStats[i].description = $data.find( '#mw-abusefilter-edit-description' )
+			.find( '.mw-input input' )
+			.val();
+		newStats[i].actions = [];
+		if( $data.find( '#mw-abusefilter-action-checkbox-disallow' ).is(':checked') ){
+			newStats[i].actions.push( 'disallow' );
+		}
+		if( $data.find( '#mw-abusefilter-action-checkbox-warn' ).is(':checked') ){
+			newStats[i].actions.push( 'warn' );
+		}
+		if( $data.find( '#mw-abusefilter-action-checkbox-tag' ).is(':checked') ){
+			newStats[i].actions.push( 'tag' );
+		}
+		newStats[i].actions = newStats[i].actions.join( ',' );
+		getOldFilterInfo( i + 1 );
+	} )
+	.fail( function(){
+		console.log( 'ajax error: ', arguments );
+		removeSpinner();
+	} );
+}
+
 function getFilterList(){
 	var filters, cur, getRevisionsOfFilter, oldLogs,
 		filterRevisions = {};
@@ -354,7 +391,7 @@ function getFilterList(){
 			ledir: 'older',
 			// TODO: Get statistics to improve this limit?
 			// What is the average number of changes/filter/month?
-			lelimit: 5 // 'max'
+			lelimit: 7 // 'max'
 		};
 
 		if( queryContinue ){
@@ -486,7 +523,7 @@ function getFilterList(){
 					);
 				}
 			}
-			getVerificationPages();
+			getOldFilterInfo(0);
 		} )
 		.fail( removeSpinner );
 	};
