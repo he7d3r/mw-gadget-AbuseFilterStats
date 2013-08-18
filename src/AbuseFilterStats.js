@@ -146,16 +146,27 @@ function printTable( table ){
 			row.version ?
 				'[[Special:AbuseFilter/history/' + id + '/item/' + row.version + '|' + ts + ']]' :
 				'[[Special:AbuseFilter/history/' + id + '|?]]<sup>[[bugzilla:52919|bug]]</sup>',
-			row.description,
-			row.actions.indexOf( 'disallow' ) !== -1 ?
-				mw.message( 'afs-table-yes' ).plain() :
-				mw.message( 'afs-table-no' ).plain(),
-			row.actions.indexOf( 'warn' ) !== -1 ?
-				mw.message( 'afs-table-yes' ).plain() :
-				mw.message( 'afs-table-no' ).plain(),
-			row.actions.indexOf( 'tag' ) !== -1 ?
-				mw.message( 'afs-table-yes' ).plain() :
-				mw.message( 'afs-table-no' ).plain(),
+			row.version ?
+				row.description :
+				'? <sup>[[bugzilla:52919|bug]]</sup>',
+			row.version ?
+				( row.actions.indexOf( 'disallow' ) !== -1 ?
+					mw.message( 'afs-table-yes' ).plain() :
+					mw.message( 'afs-table-no' ).plain()
+				) :
+				'? <sup>[[bugzilla:52919|bug]]</sup>',
+			row.version ?
+				( row.actions.indexOf( 'warn' ) !== -1 ?
+					mw.message( 'afs-table-yes' ).plain() :
+					mw.message( 'afs-table-no' ).plain()
+				) :
+				'? <sup>[[bugzilla:52919|bug]]</sup>',
+			row.version ?
+				( row.actions.indexOf( 'tag' ) !== -1 ?
+					mw.message( 'afs-table-yes' ).plain() :
+					mw.message( 'afs-table-no' ).plain()
+				) :
+				'? <sup>[[bugzilla:52919|bug]]</sup>',
 			'[' + mw.config.get( 'wgServer' ) +
 				mw.util.wikiGetlink( 'Special:AbuseLog' ) + '?' +
 				$.param( {
