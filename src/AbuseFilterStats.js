@@ -18,7 +18,8 @@ mw.messages.set( {
 	'afs-link-description': 'Gerar uma tabela com estatísticas sobre os filtros de edição',
 	'afs-missing-filter-revisions': 'Não foram encontradas revisões do filtro $1',
 	'afs-header-template': 'Predefinição:Lista de falsos positivos (cabeçalho)',
-	'afs-template-regex': '\\{\\{[Aa]ção *\\|[^}]*(?:1 *= *)?$1[^}]*\\}\\}',
+	// Keep this synced with the regex from [[User:Helder.wiki/Tools/AbuseLogStatus.js]]
+	'afs-template-regex': '\\* *\\{\\{ *[Aa]ção *\\|(?:.*?\\D)?($1)(?:\\D.*?)?\\}\\} *(?:\\n|$)',
 	'afs-error-regex': 'erro *= *sim',
 	'afs-result-intro': 'O código da tabela atualizada é apresentado abaixo:',
 	'afs-analysis-link': '[[WP:Filtro de edições/Análise/Filtro $1|$2]]',
