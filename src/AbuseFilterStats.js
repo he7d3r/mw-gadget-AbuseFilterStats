@@ -169,8 +169,7 @@ function printTable( table ){
 				) :
 				'? <sup>[[bugzilla:52919|bug]]</sup>',
 			'[' + mw.config.get( 'wgServer' ) +
-				mw.util.wikiGetlink( 'Special:AbuseLog' ) + '?' +
-				$.param( {
+				mw.util.wikiGetlink( 'Special:AbuseLog', {
 					dir: 'prev',
 					wpSearchFilter: id,
 					offset: offset,
@@ -360,8 +359,9 @@ function getOldFilterInfo( from ) {
 	$.ajax( {
 		url: mw.util.wikiGetlink(
 			'Special:AbuseFilter/history/' + newStats[i].id +
-				'/item/' + newStats[i].version
-		) + '?uselang=qqx'
+				'/item/' + newStats[i].version, {
+				uselang: 'qqx'
+		} )
 	} )
 	.done( function( data ){
 		var $data = $( data );
