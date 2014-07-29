@@ -76,7 +76,7 @@ var api, newStats, d, month, firstDayOfSelectedMonth, lastDayOfSelectedMonth, la
 		version: ''
 	};
 
-function removeSpinner() {
+function stopSpinner() {
 	$.removeSpinner( 'spinner-filter-stats' );
 }
 
@@ -280,7 +280,7 @@ function generateAbuseFilterStats(){
 				printTable( newStats );
 			}
 		} )
-		.fail( removeSpinner );
+		.fail( stopSpinner );
 	};
 	param = {
 		list: 'abuselog',
@@ -383,7 +383,7 @@ function getOldFilterInfo( from ) {
 	} )
 	.fail( function(){
 		console.log( 'ajax error: ', arguments );
-		removeSpinner();
+		stopSpinner();
 	} );
 }
 
