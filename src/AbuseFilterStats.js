@@ -18,7 +18,7 @@ mw.messages.set( {
 	'afs-link-description': 'Gerar uma tabela com estatísticas sobre os filtros de edição',
 	'afs-missing-filter-revisions': 'Não foram encontradas revisões do filtro $1',
 	'afs-header-template': 'Predefinição:Lista de falsos positivos (cabeçalho)',
-	// Keep this synced with the regex from [[User:Helder.wiki/Tools/AbuseLogStatus.js]]
+	// Keep this synced with the regex from mw-gadget-AbuseLogStatus
 	'afs-template-regex': '\\* *\\{\\{ *[Aa]ção *\\|(?:.*?\\D)?($1)(?:\\D.*?)?\\}\\} *(?:\\n|$)',
 	'afs-error-regex': 'erro *= *sim',
 	'afs-result-intro': 'O código da tabela atualizada é apresentado abaixo:',
