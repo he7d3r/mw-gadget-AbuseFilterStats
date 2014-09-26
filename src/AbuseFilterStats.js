@@ -3,8 +3,6 @@
  * @author: Helder (https://github.com/he7d3r)
  * @license: CC BY-SA 3.0 <https://creativecommons.org/licenses/by-sa/3.0/>
  */
-/*jshint browser: true, camelcase: false, curly: true, eqeqeq: true, immed: true, latedef: true, newcap: true, noarg: true, noempty: true, nonew: true, quotmark: true, undef: true, unused: true, strict: true, trailing: true, laxbreak: true, devel: true, maxlen: 120, evil: true, onevar: true */
-/*global jQuery, mediaWiki */
 ( function ( mw, $ ) {
 'use strict';
 
@@ -211,7 +209,7 @@ function printTable( table ){
 			mw.html.escape( wikicode ) +
 		'</textarea>'
 	);
-	$.removeSpinner( 'spinner-filter-stats' );
+	stopSpinner();
 	// $( 'table.sortable' ).tablesorter();
 }
 
@@ -229,7 +227,9 @@ function generateAbuseFilterStats(){
 			for ( i = 0; i < data.query.abuselog.length; i++ ){
 				log = data.query.abuselog[i];
 				logDate = new Date ( log.timestamp );
+				/*jshint camelcase:false */
 				logId = parseInt( log.filter_id, 10 );
+				/*jshint camelcase:true */
 				// Find the row of the newest version of the
 				// filter which generated this log
 				// which is older than the log
@@ -335,7 +335,7 @@ function getVerificationPages(){
 		} );
 		generateAbuseFilterStats();
 	} )
-	.fail( removeSpinner );
+	.fail( stopSpinner );
 }
 
 function getOldFilterInfo( from ) {
@@ -382,7 +382,7 @@ function getOldFilterInfo( from ) {
 		getOldFilterInfo( i + 1 );
 	} )
 	.fail( function(){
-		console.log( 'ajax error: ', arguments );
+		mw.log( 'ajax error: ', arguments );
 		stopSpinner();
 	} );
 }
@@ -453,7 +453,7 @@ function getFilterList(){
 			}
 			// logDate = new Date ( changes[ changes.length - 1 ].timestamp );
 			if ( firstDayOfSelectedMonth <= logDate && data[ 'query-continue' ] ){
-				console.log( 'getRevisionsOfFilter: ' + id );
+				mw.log( 'getRevisionsOfFilter: ' + id );
 				if ( oldLogs ){
 					data[ 'query-continue' ].logevents.letitle = 'Special:AbuseFilter/' + id;
 				}
@@ -475,7 +475,7 @@ function getFilterList(){
 				)
 			) {
 				// Workaround for [[bugzilla:52221]]
-				console.log( 'getRevisionsOfFilter: ' + id + ' (old logs)');
+				mw.log( 'getRevisionsOfFilter: ' + id + ' (old logs)');
 				oldLogs = true;
 				getRevisionsOfFilter( id, {
 					lestart: lastDayOfSelectedMonth.toISOString(), // lastDayOfCurrentMonth.toISOString(),
@@ -485,7 +485,7 @@ function getFilterList(){
 			}
 			cur++;
 			if( cur < filters.length ){
-				console.log( 'getRevisionsOfFilter: ' + filters[ cur ].id );
+				mw.log( 'getRevisionsOfFilter: ' + filters[ cur ].id );
 				oldLogs = false;
 				mw.notify(
 					mw.msg( 'afs-getting-filter-revisions', filters[ cur ].id ),
@@ -508,7 +508,7 @@ function getFilterList(){
 				curFilterRevs = filterRevisions[ filters[i].id ];
 				if( !curFilterRevs.length ){
 					// This might happens because of [[bugzilla:52919]]
-					console.warn( mw.msg( 'afs-missing-filter-revisions', filters[i].id ) );
+					mw.log.warn( mw.msg( 'afs-missing-filter-revisions', filters[i].id ) );
 				}
 				/*
 				// && curFilterRevs.length === 1
@@ -537,7 +537,7 @@ function getFilterList(){
 			}
 			getOldFilterInfo(0);
 		} )
-		.fail( removeSpinner );
+		.fail( stopSpinner );
 	};
 
 	$( '#firstHeading' ).injectSpinner( 'spinner-filter-stats' );
@@ -557,7 +557,7 @@ function getFilterList(){
 			filterRevisions[ filters[ i ].id ] = [];
 		}
 		cur = 0;
-		console.log( 'getRevisionsOfFilter: ' + filters[ cur ].id );
+		mw.log( 'getRevisionsOfFilter: ' + filters[ cur ].id );
 		oldLogs = false;
 		mw.notify(
 			mw.msg( 'afs-getting-filter-revisions', filters[ cur ].id ),
@@ -568,7 +568,7 @@ function getFilterList(){
 		);
 		getRevisionsOfFilter( filters[ cur ].id );
 	} )
-	.fail( removeSpinner );
+	.fail( stopSpinner );
 }
 
 function addAbuseFilterStatsLink(){
