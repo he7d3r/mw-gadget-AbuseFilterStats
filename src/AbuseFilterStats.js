@@ -89,7 +89,7 @@
 				'|+ ' + mw.msg( 'afs-table-header' ),
 				'|-',
 				'! rowspan=4 data-sort-type="number" | ' + mw.msg( 'afs-table-filter' ),
-				// TODO: use data-sort-type="isoDate", once [[bugzilla:52842]] is fixed
+				// TODO: use data-sort-type="isoDate", once [[phab:T54842]] is fixed
 				'! rowspan=4 style="width: 9em;" | ' + mw.msg( 'afs-table-date' ),
 				'! rowspan=4 data-sort-type="text" | ' + mw.msg( 'afs-table-description' ),
 				'! colspan=3 | ' + mw.msg( 'afs-table-settings' ),
@@ -144,28 +144,28 @@
 				'[[Special:AbuseFilter/' + id + '|' + id + ']]',
 				row.version ?
 					'[[Special:AbuseFilter/history/' + id + '/item/' + row.version + '|' + ts + ']]' :
-					'[[Special:AbuseFilter/history/' + id + '|?]]<sup>[[bugzilla:52919|bug]]</sup>',
+					'[[Special:AbuseFilter/history/' + id + '|?]]<sup>[[phab:T54919|bug]]</sup>',
 				row.version ?
 					row.description :
-					'? <sup>[[bugzilla:52919|bug]]</sup>',
+					'? <sup>[[phab:T54919|bug]]</sup>',
 				row.version ?
 					( row.actions.indexOf( 'disallow' ) !== -1 ?
 						mw.message( 'afs-table-yes' ).plain() :
 						mw.message( 'afs-table-no' ).plain()
 					) :
-					'? <sup>[[bugzilla:52919|bug]]</sup>',
+					'? <sup>[[phab:T54919|bug]]</sup>',
 				row.version ?
 					( row.actions.indexOf( 'warn' ) !== -1 ?
 						mw.message( 'afs-table-yes' ).plain() :
 						mw.message( 'afs-table-no' ).plain()
 					) :
-					'? <sup>[[bugzilla:52919|bug]]</sup>',
+					'? <sup>[[phab:T54919|bug]]</sup>',
 				row.version ?
 					( row.actions.indexOf( 'tag' ) !== -1 ?
 						mw.message( 'afs-table-yes' ).plain() :
 						mw.message( 'afs-table-no' ).plain()
 					) :
-					'? <sup>[[bugzilla:52919|bug]]</sup>',
+					'? <sup>[[phab:T54919|bug]]</sup>',
 				'[' + mw.config.get( 'wgServer' ) +
 					mw.util.getUrl( 'Special:AbuseLog', {
 						dir: 'prev',
@@ -465,7 +465,7 @@
 				// The current log is:
 				// * Not defined; or
 				// * From before the selected month; or
-				// * The oldest log available for this title (be aware of [[bugzilla:52919]])
+				// * The oldest log available for this title (be aware of [[phab:T54919]])
 				if (
 					!oldLogs
 					&& (
@@ -476,7 +476,7 @@
 						)
 					)
 				) {
-					// Workaround for [[bugzilla:52221]]
+					// Workaround for [[phab:T54221]]
 					mw.log( 'getRevisionsOfFilter: ' + id + ' (old logs)');
 					oldLogs = true;
 					getRevisionsOfFilter( id, {
@@ -509,7 +509,7 @@
 				for ( i = 0; i < filters.length; i++ ) {
 					curFilterRevs = filterRevisions[ filters[i].id ];
 					if ( !curFilterRevs.length ) {
-						// This might happens because of [[bugzilla:52919]]
+						// This might happens because of [[phab:T54919]]
 						mw.log.warn( mw.msg( 'afs-missing-filter-revisions', filters[i].id ) );
 					}
 					/*
@@ -519,7 +519,7 @@
 						// it was created after the selected month
 						// FIXME: the filter might be very old and
 						// its only logs are from after the selected month,
-						// due to [[bugzilla:52919]]
+						// due to [[phab:T54919]]
 						continue;
 					}
 					*/
