@@ -291,7 +291,8 @@
 			aflstart: firstDayOfSelectedMonth.toISOString(), //FIXME?
 			aflend: lastDayOfSelectedMonth.toISOString(),
 			aflprop: 'ids|revid|result|timestamp', // |filter|user|title|action|hidden|details|ip
-			afldir: 'newer'
+			afldir: 'newer',
+			rawcontinue: 1
 		};
 		mw.notify(
 			mw.msg( 'afs-getting-logs' ),
@@ -405,7 +406,8 @@
 				ledir: 'older',
 				// TODO: Get statistics to improve this limit?
 				// What is the average number of changes/filter/month?
-				lelimit: 7 // 'max'
+				lelimit: 7, // 'max'
+				rawcontinue: 1
 			};
 
 			if ( queryContinue ) {
