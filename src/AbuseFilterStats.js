@@ -606,7 +606,6 @@
 			mw.loader.using( [
 				'mediawiki.api',
 				'jquery.spinner',
-				'jquery.mwExtension',
 				'mediawiki.notify',
 				'mediawiki.notification'
 			], getFilterList );
